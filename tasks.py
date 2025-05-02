@@ -1,7 +1,8 @@
-
-from invoke import task
+# Path: task.py
+"""Tasks for invoking tasks using Invoke."""
 import shutil
 import os
+from invoke import task
 
 @task
 def setup(c):
@@ -35,9 +36,9 @@ def clean(c):
     c.run("rm -rf dist/ build/ *.egg-info htmlcov .pytest_cache")
 
 @task
-def cleanpy(c):
+def cleanpy(c):   # pylint: disable=unused-argument
     """Remove __pycache__ and coverage artifacts."""
-    for root, dirs, files in os.walk("."):
+    for root, dirs, _ in os.walk("."):
         for d in dirs:
             if d == "__pycache__":
                 shutil.rmtree(os.path.join(root, d), ignore_errors=True)
