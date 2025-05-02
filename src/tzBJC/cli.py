@@ -1,22 +1,54 @@
+# Path: src/tzBJC/cli.py
+"""CLI interface for tzBJC."""
+# pylint: disable=line-too-long
 import argparse
-from .core import binary_to_signed_json, signed_json_to_binary
+import json
+import os
+import sys
+from tzBJC.core import encode_to_json_stream, decode_from_json_stream
 
 def main():
-    parser = argparse.ArgumentParser(description="Convert binary <-> signed JSON")
-    parser.add_argument("input", help="Input file")
-    parser.add_argument("output", help="Output file")
-    parser.add_argument("--to-json", action="store_true", help="Convert binary to signed JSON")
+    """Main function for the CLI."""
+    parser = argparse.ArgumentParser(
+        description="tzBJC - TaggedZ's Binary JSON Converter. Encode or decode binary files to/from JSON."
+    )
+    subparsers = parser.add_subparsers(dest="command", required=True)
+
+    # Encode subcommand
+    encode_parser = subparsers.add_parser("encode", help="Encode binary file to JSON")
+    encode_parser.add_argument("--input", "-i", required=True, help="Input binary file path")
+    encode_parser.add_argument("--output", "-o", help="Output JSON file path (default: stdout)")
+
+    # Decode subcommand
+    decode_parser = subparsers.add_parser("decode", help="Decode JSON to binary file")
+    decode_parser.add_argument("--input", "-i", required=True, help="Input JSON file path")
+    decode_parser.add_argument("--output", "-o", help="Output binary file path (default: use embedded filename)")
+    decode_parser.add_argument(
+        "--force", "-f", action="store_true",
+        help="Overwrite output file if it already exists"
+    )
+
     args = parser.parse_args()
 
-    if args.to_json:
-        with open(args.input, "rb") as f:
-            data = f.read()
-        json_str = binary_to_signed_json(data)
-        with open(args.output, "w") as f:
-            f.write(json_str)
-    else:
-        with open(args.input, "r") as f:
-            json_str = f.read()
-        data = signed_json_to_binary(json_str)
-        with open(args.output, "wb") as f:
-            f.write(data)
+    if args.command == "encode":
+        if args.output:
+            with open(args.output, "w", encoding="utf-8") as out:
+                encode_to_json_stream(args.input, out)
+        else:
+            encode_to_json_stream(args.input, sys.stdout)
+
+    elif args.command == "decode":
+        with open(args.input, "r", encoding="utf-8") as infile:
+            parsed = json.load(infile)
+            infile.seek(0)
+
+            output_path = args.output or parsed.get("filename")
+            if not output_path:
+                print("Error: no output file specified and no filename found in JSON.")
+                sys.exit(1)
+
+            if os.path.exists(output_path) and not args.force:
+                print(f"Error: output file '{output_path}' already exists. Use --force to overwrite.")
+                sys.exit(1)
+
+            decode_from_json_stream(infile, output_path)
