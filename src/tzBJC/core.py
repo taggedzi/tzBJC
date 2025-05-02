@@ -1,151 +1,83 @@
-# Path: src/tzBJC/core.py
-"""
-Encode any file into a JSON “package”:
-  - compress with zlib (max compression)
-  - URL-safe base64 (no padding)
-  - wrap metadata (filename, checksum)
-
-Decode a JSON package back to the original file.
-"""
 import io
-import os
-import sys
-import argparse
-import json
-import zlib
-import base64
+from io import TextIOBase
 import hashlib
-import textwrap
+import base64
+import os
+import json
+from typing import TextIO
 import zstandard as zstd
 
 
-def compute_checksum(data: bytes) -> str:
-    """Return SHA-256 checksum of data as a hex string."""
-    h = hashlib.sha256()
-    h.update(data)
-    return h.hexdigest()
+def encode_to_json_stream(input_path: str, output: TextIOBase, chunk_size: int = 65536) -> None:
+    """
+    Stream-compress a binary file, base64-encode it, and output a JSON object to a TextIO stream.
+    The JSON includes filename, SHA256 checksum, and base64-encoded compressed data.
 
-def compress_data(data: bytes, compression_level: int = 22) -> bytes:
-    """Compress data with zlib."""
-    cctx = zstd.ZstdCompressor(level=compression_level)
-    compressed = cctx.compress(data)
-    return compressed
+    :param input_path: Path to the input binary file.
+    :param output: A text stream (e.g., sys.stdout, StringIO, or open(..., 'w')) to write the JSON to.
+    :param chunk_size: Size of chunks to process in bytes.
+    """
+    hasher = hashlib.sha256()
+    filename = os.path.basename(input_path)
 
+    # Write JSON header and start of data field
+    output.write('{\n')
+    output.write(f'  "filename": {json.dumps(filename)},\n')
+    output.write(f'  "checksum": "')
 
-def binary_to_signed_json(in_path: str, compress_level: int = 22) -> None:
-    # Read entire file
-    with open(in_path, 'rb') as f:
-        raw = f.read()
+    # First pass: compute checksum
+    with open(input_path, "rb") as f:
+        while chunk := f.read(chunk_size):
+            hasher.update(chunk)
+    output.write(hasher.hexdigest() + '",\n')
+    output.write('  "data": "')
 
-    checksum = compute_checksum(raw)
-    
-    cctx = zstd.ZstdCompressor(level=compress_level)
-    compressed = cctx.compress(raw)
-    
-    b64 = base64.urlsafe_b64encode(compressed).decode('ascii').rstrip('=')
+    # Second pass: compress + encode
+    cctx = zstd.ZstdCompressor(level=22)
+    with open(input_path, "rb") as f, cctx.stream_reader(f) as compressor:
+        while chunk := compressor.read(chunk_size):
+            encoded_chunk = base64.urlsafe_b64encode(chunk).decode('ascii')
+            output.write(encoded_chunk)
 
-    # Build minimal JSON object
-    package = {
-        "filename": os.path.basename(in_path),
-        "checksum":  checksum,
-        "data": b64,
-    }
+    output.write('"\n}\n')
 
-    return package
+def decode_from_json_stream(json_input: TextIO, output_path: str, chunk_size: int = 65536) -> None:
+    """
+    Reads a streamed JSON input containing compressed, base64-encoded binary data and writes
+    the decompressed original binary file to output_path.
 
+    :param json_input: A text stream containing the JSON structure.
+    :param output_path: The path to write the decoded binary file.
+    :param chunk_size: Size of chunks to decode and decompress.
+    """
+    # Parse the JSON and extract the base64 data
+    json_obj = json.load(json_input)
+    b64_data = json_obj["data"]
 
-def decode_file(in_path: str) -> None:
-    # Load JSON
-    with open(in_path, 'r', encoding='utf-8') as f:
-        pkg = json.load(f)
+    # Decode the base64 into compressed bytes
+    compressed_bytes = base64.urlsafe_b64decode(b64_data.encode('ascii'))
 
-    fname = pkg["filename"]
-    checksum_expected = pkg["checksum"]
-    b64 = pkg["data"]
-
-    # Restore padding for base64
-    padding = (-len(b64)) % 4
-    if padding:
-        b64 += '=' * padding
-
-    compressed = base64.urlsafe_b64decode(b64.encode('ascii'))
+    # Decompress using zstandard
     dctx = zstd.ZstdDecompressor()
-    raw = dctx.decompress(compressed)
+    with open(output_path, "wb") as out_file:
+        with dctx.stream_reader(io.BytesIO(compressed_bytes)) as reader:
+            while chunk := reader.read(chunk_size):
+                out_file.write(chunk)
+
+
+if __name__ == "__main__":
+    # Example usage:
+    from io import StringIO
+
+    # Write to a file
+    with open("output.json", "w") as out:
+        encode_to_json_stream("input.bin", out)
+
+    # Or capture in memory
+    buffer = StringIO()
+    encode_to_json_stream("input.bin", buffer)
+    json_output = buffer.getvalue()
     
-    # Verify checksum
-    checksum_actual = compute_checksum(raw)
-    if checksum_actual != checksum_expected:
-        print(f"Warning: checksum mismatch:\n"
-              f"   expected: {checksum_expected}\n"
-              f"     actual: {checksum_actual}",
-              file=sys.stderr)
-
-    return raw
-
-def main():
-    parser = argparse.ArgumentParser(
-        prog='filepack.py',
-        description='Compress any file to a zlib->URL-safe-base64 JSON package, or decode it back.',
-        epilog=textwrap.dedent('''\
-            Examples:
-              # Encode a file:
-              python filepack.py encode path/to/input.bin
-              
-              # Specify output JSON name:
-              python filepack.py encode path/to/logo.png logo.pkg.json
-              
-              # Decode back into the original file (into cwd):
-              python filepack.py decode logo.pkg.json
-              
-              # Decode into a specific folder:
-              python filepack.py decode logo.pkg.json restored_folder/
-        '''),
-        formatter_class=argparse.RawDescriptionHelpFormatter
-    )
-    subs = parser.add_subparsers(dest='cmd', required=True, help='Available commands')
-
-    enc = subs.add_parser(
-        'encode',
-        help='Compress & encode -> JSON package',
-        description='Read INPUT, compress with zlib, base64-encode, wrap in JSON.'
-    )
-    enc.add_argument('input', help='Path to file to encode')
-    enc.add_argument(
-        'output',
-        nargs='?',
-        help='Output JSON filename (default: INPUT.json)'
-    )
-
-    dec = subs.add_parser(
-        'decode',
-        help='Decode JSON package -> original file',
-        description='Read JSON package, base64-decode, decompress, verify checksum.'
-    )
-    dec.add_argument('input', help='Path to JSON package to decode')
-    dec.add_argument(
-        'output_dir',
-        nargs='?',
-        default='.',
-        help='Directory to write the restored file (default: current directory)'
-    )
-
-    args = parser.parse_args()
-
-    if args.cmd == 'encode':
-        out = args.output or f"{args.input}.json"
-        encode_file(args.input, out)
-    else:  # decode
-        decode_file(args.input, args.output_dir)
-
-
-if __name__ == '__main__':
-    main()
-
-
-
-def binary_to_signed_json(binary_data: bytes) -> str:
-    return json.dumps({"data": list(binary_data)})
-
-def signed_json_to_binary(json_str: str) -> bytes:
-    obj = json.loads(json_str)
-    return bytes(obj["data"])
+    # Decode and write to a file
+    with open("output.json", "r") as f:
+        decode_from_json_stream(f, "restored.bin")
