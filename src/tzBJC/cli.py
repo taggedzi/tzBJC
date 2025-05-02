@@ -18,6 +18,10 @@ def main():
     encode_parser = subparsers.add_parser("encode", help="Encode binary file to JSON")
     encode_parser.add_argument("--input", "-i", required=True, help="Input binary file path")
     encode_parser.add_argument("--output", "-o", help="Output JSON file path (default: stdout)")
+    encode_parser.add_argument(
+        "--force", "-f", action="store_true", 
+        help="Overwrite output file if it already exists"
+    )
 
     # Decode subcommand
     decode_parser = subparsers.add_parser("decode", help="Decode JSON to binary file")
@@ -32,6 +36,9 @@ def main():
 
     if args.command == "encode":
         if args.output:
+            if os.path.exists(args.output) and not args.force:
+                print(f"Error: output file '{args.output}' already exists. Use --force to overwrite.")
+                sys.exit(1)
             with open(args.output, "w", encoding="utf-8") as out:
                 encode_to_json_stream(args.input, out)
         else:
