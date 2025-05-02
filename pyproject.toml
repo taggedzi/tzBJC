@@ -13,5 +13,5 @@ dependencies = [
 requires-python = ">=3.8"
 
 [project.scripts]
-tzBJC-cli = "tzBJC-cli:main"
+tzBJC-cli = "tzBJC.cli:main"
 tzBJC-gui = "tzBJC.gui:main"
