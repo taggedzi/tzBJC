@@ -1,3 +1,6 @@
+# Path: src/tzBJC/core.py
+"""Library for encoding/decoding binary files to/from signed JSON files."""
+# pylint: disable=line-too-long
 import io
 from io import TextIOBase
 import hashlib
@@ -23,7 +26,7 @@ def encode_to_json_stream(input_path: str, output: TextIOBase, chunk_size: int =
     # Write JSON header and start of data field
     output.write('{\n')
     output.write(f'  "filename": {json.dumps(filename)},\n')
-    output.write(f'  "checksum": "')
+    output.write('  "checksum": "')
 
     # First pass: compute checksum
     with open(input_path, "rb") as f:
@@ -63,21 +66,3 @@ def decode_from_json_stream(json_input: TextIO, output_path: str, chunk_size: in
         with dctx.stream_reader(io.BytesIO(compressed_bytes)) as reader:
             while chunk := reader.read(chunk_size):
                 out_file.write(chunk)
-
-
-if __name__ == "__main__":
-    # Example usage:
-    from io import StringIO
-
-    # Write to a file
-    with open("output.json", "w") as out:
-        encode_to_json_stream("input.bin", out)
-
-    # Or capture in memory
-    buffer = StringIO()
-    encode_to_json_stream("input.bin", buffer)
-    json_output = buffer.getvalue()
-    
-    # Decode and write to a file
-    with open("output.json", "r") as f:
-        decode_from_json_stream(f, "restored.bin")
