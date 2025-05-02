@@ -7,6 +7,7 @@ import hashlib
 import base64
 import os
 import json
+import re
 from typing import TextIO
 import zstandard as zstd
 
@@ -58,7 +59,11 @@ def decode_from_json_stream(json_input: TextIO, output_path: str, chunk_size: in
     b64_data = json_obj["data"]
 
     # Decode the base64 into compressed bytes
-    compressed_bytes = base64.urlsafe_b64decode(b64_data.encode('ascii'))
+
+    if not re.fullmatch(r'[-A-Za-z0-9_=]*', b64_data):
+        raise ValueError("Invalid characters in base64 input")
+
+    compressed_bytes = base64.urlsafe_b64decode(b64_data.encode("ascii"))
 
     # Decompress using zstandard
     dctx = zstd.ZstdDecompressor()

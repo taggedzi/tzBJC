@@ -2,10 +2,14 @@
 """CLI interface for tzBJC."""
 # pylint: disable=line-too-long
 import argparse
+import binascii
 import json
 import os
 import sys
+from io import StringIO
+import zstandard as zstd
 from tzBJC.core import encode_to_json_stream, decode_from_json_stream
+
 
 def main():
     """Main function for the CLI."""
@@ -35,27 +39,38 @@ def main():
     args = parser.parse_args()
 
     if args.command == "encode":
-        if args.output:
-            if os.path.exists(args.output) and not args.force:
-                print(f"Error: output file '{args.output}' already exists. Use --force to overwrite.")
-                sys.exit(1)
-            with open(args.output, "w", encoding="utf-8") as out:
-                encode_to_json_stream(args.input, out)
-        else:
-            encode_to_json_stream(args.input, sys.stdout)
+        try:
+            if args.output:
+                if os.path.exists(args.output) and not args.force:
+                    print(f"Error: output file '{args.output}' already exists. Use --force to overwrite.")
+                    sys.exit(1)
+                with open(args.output, "w", encoding="utf-8") as out:
+                    encode_to_json_stream(args.input, out)
+            else:
+                encode_to_json_stream(args.input, sys.stdout)
+        except FileNotFoundError:
+            print(f"Error: input file '{args.input}' not found.")
+            sys.exit(1)
 
     elif args.command == "decode":
         with open(args.input, "r", encoding="utf-8") as infile:
-            parsed = json.load(infile)
-            infile.seek(0)
+            try:
+                parsed = json.load(infile)
+                output_path = args.output or parsed.get("filename")
+                if not output_path:
+                    print("Error: no output file specified and no filename found in JSON.")
+                    sys.exit(1)
 
-            output_path = args.output or parsed.get("filename")
-            if not output_path:
-                print("Error: no output file specified and no filename found in JSON.")
+                if os.path.exists(output_path) and not args.force:
+                    print(f"Error: output file '{output_path}' already exists. Use --force to overwrite.")
+                    sys.exit(1)
+
+                json_stream = StringIO(json.dumps(parsed))
+                decode_from_json_stream(json_stream, output_path)
+
+            except KeyError as e:
+                print(f"Error: missing key in JSON: {e}")
                 sys.exit(1)
-
-            if os.path.exists(output_path) and not args.force:
-                print(f"Error: output file '{output_path}' already exists. Use --force to overwrite.")
+            except (binascii.Error, zstd.ZstdError, ValueError) as e:
+                print(f"Error during decoding: {e}")
                 sys.exit(1)
-
-            decode_from_json_stream(infile, output_path)
