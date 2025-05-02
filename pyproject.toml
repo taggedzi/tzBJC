@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "tzBJC"
+version = "0.1.0"
+description = "Convert binary files to signed JSON and back."
+authors = [{name = "Your Name", email = "your@email.com"}]
+dependencies = [
+    "PySide6"
+]
+requires-python = ">=3.8"
+
+[project.scripts]
+tzBJC-cli = "tzBJC-cli:main"
+tzBJC-gui = "tzBJC.gui:main"
