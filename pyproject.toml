@@ -7,6 +7,8 @@ name = "tzBJC"
 version = "0.2.5"
 description = "Convert binary files to signed JSON and back, with zstd compression."
 readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
 requires-python = ">=3.8"
 keywords = [ "json", "binary", "converter", "zstandard", "cli", "gui", "library", "compression",]
 classifiers = [ "Programming Language :: Python :: 3", "Operating System :: OS Independent", "Development Status :: 4 - Beta", "Environment :: Console", "Environment :: X11 Applications :: Qt", "Topic :: Utilities",]
@@ -14,9 +16,6 @@ dependencies = [ "PySide6==6.9.0", "PySide6_Addons==6.9.0", "PySide6_Essentials=
 [[project.authors]]
 name = "Matthew Craig"
 email = "taggedzi.mpc@gmail.com"
-
-[project.license]
-text = "MIT"
 
 [project.optional-dependencies]
 dev = [ "coverage==7.8.0", "invoke==2.2.0", "pytest==8.3.5", "pytest-cov==6.1.1", "pytest-qt==4.4.0", "toml==0.10.2", "wheel==0.45.1",]
