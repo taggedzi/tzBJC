@@ -7,6 +7,7 @@
 ## ✨ Features
 
 - 🔐 Encodes binary files into signed JSON format
+- 🔌 Library for easy integration into other projects
 - 🧩 Uses Zstandard compression with Base64 URL-safe encoding
 - 📦 CLI and GUI support
 - ✅ Stream-based processing for large files
@@ -102,5 +103,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 ## 🌐 Links
 
 - 📦 [PyPI Project Page](https://pypi.org/project/tzBJC/)
-- 🧪 [TestPyPI Package](https://test.pypi.org/project/tzBJC/)
 - 🐙 [GitHub Repository](https://github.com/taggedzi/tzBJC)
+- 🗃️ [Project README](README.md)
+- 📖 [Documentation](https://taggedzi.github.io/tzBJC/)
