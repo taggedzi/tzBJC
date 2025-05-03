@@ -1,10 +1,9 @@
 [build-system]
-requires = ["setuptools>=61.0"]
+requires = ["setuptools>=61.0", "setuptools-scm"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "tzBJC"
-version = "0.1.0"
 description = "Convert binary files to signed JSON and back, with zstd compression."
 authors = [{name = "Matthew Craig", email = "taggedzi.mpc@gmail.com"}]
 readme = "README.md"
@@ -17,6 +16,19 @@ dependencies = [
   "PySide6_Essentials==6.9.0",
   "zstandard==0.23.0"
 ]
+
+[project.optional-dependencies]
+dev = [
+  "coverage==7.8.0",
+  "invoke==2.2.0",
+  "pytest==8.3.5",
+  "pytest-cov==6.1.1",
+  "pytest-qt==4.4.0"
+]
+
+[project.scripts]
+tzBJC-cli = "tzBJC.cli:main"
+tzBJC-gui = "tzBJC.gui:main"
 
 keywords = ["json", "binary", "zstandard", "cli", "gui", "compression"]
 
@@ -33,15 +45,6 @@ classifiers = [
 [project.urls]
 Homepage = "https://github.com/taggedzi/tzBJC"
 
-[project.optional-dependencies]
-dev = [
-  "coverage==7.8.0",
-  "invoke==2.2.0",
-  "pytest==8.3.5",
-  "pytest-cov==6.1.1",
-  "pytest-qt==4.4.0"
-]
-
-[project.scripts]
-tzBJC-cli = "tzBJC.cli:main"
-tzBJC-gui = "tzBJC.gui:main"
+[tool.setuptools_scm]
+version_scheme = "post-release"
+local_scheme = "no-local-version"
