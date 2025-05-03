@@ -19,10 +19,10 @@ jobs:
       with:
         python-version: '3.10'
 
-    - name: Install system dependencies
+    - name: Install minimal Qt dependencies
       run: |
         sudo apt-get update
-        sudo apt-get install -y xvfb libegl1-mesa libxkbcommon-x11-0 libxcb-cursor0
+        sudo apt-get install -y xvfb libegl1-mesa
 
     - name: Install Python dependencies
       run: |
