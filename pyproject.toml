@@ -11,6 +11,18 @@ readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.8"
 
+keywords = ["json", "binary", "zstandard", "cli", "gui", "compression"]
+
+classifiers = [
+  "Programming Language :: Python :: 3",
+  "License :: OSI Approved :: MIT License",
+  "Operating System :: OS Independent",
+  "Development Status :: 4 - Beta",
+  "Environment :: Console",
+  "Environment :: X11 Applications :: Qt",
+  "Topic :: Utilities"
+]
+
 dependencies = [
   "PySide6==6.9.0",
   "PySide6_Addons==6.9.0",
@@ -30,18 +42,6 @@ dev = [
 [project.scripts]
 tzBJC-cli = "tzBJC.cli:main"
 tzBJC-gui = "tzBJC.gui:main"
-
-keywords = ["json", "binary", "zstandard", "cli", "gui", "compression"]
-
-classifiers = [
-  "Programming Language :: Python :: 3",
-  "License :: OSI Approved :: MIT License",
-  "Operating System :: OS Independent",
-  "Development Status :: 4 - Beta",
-  "Environment :: Console",
-  "Environment :: X11 Applications :: Qt",
-  "Topic :: Utilities"
-]
 
 [project.urls]
 Homepage = "https://github.com/taggedzi/tzBJC"
