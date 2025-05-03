@@ -1,5 +1,5 @@
 [build-system]
-requires = [ "setuptools>=77.0", "wheel",]
+requires = [ "setuptools>=77.0.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
@@ -17,7 +17,7 @@ name = "Matthew Craig"
 email = "taggedzi.mpc@gmail.com"
 
 [project.optional-dependencies]
-dev = [ "coverage==7.8.0", "invoke==2.2.0", "pytest==8.3.5", "pytest-cov==6.1.1", "pytest-qt==4.4.0", "toml==0.10.2", "wheel==0.45.1",]
+dev = [ "coverage==7.8.0", "invoke==2.2.0", "pytest==8.3.5", "pytest-cov==6.1.1", "pytest-qt==4.4.0", "toml==0.10.2"]
 
 [project.scripts]
 tzBJC-cli = "tzBJC.cli:main"
