@@ -8,7 +8,7 @@ dynamic = ["version"]
 description = "Convert binary files to signed JSON and back, with zstd compression."
 authors = [{name = "Matthew Craig", email = "taggedzi.mpc@gmail.com"}]
 readme = "README.md"
-license = "MIT"
+license = { text = "MIT" }
 requires-python = ">=3.8"
 
 keywords = ["json", "binary", "zstandard", "cli", "gui", "compression"]
