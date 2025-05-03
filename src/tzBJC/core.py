@@ -48,26 +48,40 @@ def encode_to_json_stream(input_path: str, output: TextIOBase, chunk_size: int =
 def decode_from_json_stream(json_input: TextIO, output_path: str, chunk_size: int = 65536) -> None:
     """
     Reads a streamed JSON input containing compressed, base64-encoded binary data and writes
-    the decompressed original binary file to output_path.
-
+    the decompressed original binary file to output_path. Verifies the SHA-256 checksum before writing.
+    
     :param json_input: A text stream containing the JSON structure.
     :param output_path: The path to write the decoded binary file.
     :param chunk_size: Size of chunks to decode and decompress.
+    :raises ValueError: If checksum does not match.
     """
-    # Parse the JSON and extract the base64 data
+    # Parse JSON and extract data
     json_obj = json.load(json_input)
     b64_data = json_obj["data"]
+    expected_checksum = json_obj["checksum"]
 
-    # Decode the base64 into compressed bytes
-
+    # Validate base64
     if not re.fullmatch(r'[-A-Za-z0-9_=]*', b64_data):
         raise ValueError("Invalid characters in base64 input")
 
+    # Decode base64 string to compressed bytes
     compressed_bytes = base64.urlsafe_b64decode(b64_data.encode("ascii"))
 
     # Decompress using zstandard
     dctx = zstd.ZstdDecompressor()
+    hasher = hashlib.sha256()
+    decompressed_data = bytearray()
+
+    with dctx.stream_reader(io.BytesIO(compressed_bytes)) as reader:
+        while chunk := reader.read(chunk_size):
+            hasher.update(chunk)
+            decompressed_data.extend(chunk)
+
+    # Checksum verification
+    actual_checksum = hasher.hexdigest()
+    if actual_checksum != expected_checksum:
+        raise ValueError(f"Checksum mismatch! Expected {expected_checksum}, got {actual_checksum}")
+
+    # Write verified binary output
     with open(output_path, "wb") as out_file:
-        with dctx.stream_reader(io.BytesIO(compressed_bytes)) as reader:
-            while chunk := reader.read(chunk_size):
-                out_file.write(chunk)
+        out_file.write(decompressed_data)

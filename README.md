@@ -16,6 +16,58 @@
 
 ---
 
+## The Process
+
+```bash
+[Original Binary File]
+        |
+        |  (1. Read binary content)
+        v
+[SHA-256 Digest (hex string)]
+        |
+        |  (2. Compute SHA-256 of compressed data)
+        v
+[Binary Content]
+        |
+        |  (3. Compress using Zstandard)
+        v
+[Zstandard Compressed Binary Content]
+        |
+        |  (4. Encode with base64-url-safe)
+        v
+      [JSON File | stdout | StringIO | Clipboard-friendly JSON format (GUI)]
+        {
+          "filename": "example.bin",
+          "data": "<zstd compressed base64 string>",
+          "sha256": "<hash of original data>"
+        }
+
+--- Later ---
+
+      [JSON File]
+        |
+        |  (5. Extract compressed base64 + hash)
+        v
+[Base64-urlsafe String]
+        |
+        |  (6. Decode base64-urlsafe)
+        v
+[Compressed Data]
+        |
+        |  (7. Decompress with Zstandard)
+        v
+       [Valid?]
+        |
+        |  (7. Verify checksum)
+        v
+[Original Binary Data]
+        |
+        |  (8. Write to output path)
+        v
+[Restored Binary File]
+
+```
+
 ## 📦 Installation
 
 ```bash
