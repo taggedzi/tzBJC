@@ -8,14 +8,13 @@ version = "0.0.0"
 description = "Convert binary files to signed JSON and back, with zstd compression."
 authors = [{name = "Matthew Craig", email = "taggedzi.mpc@gmail.com"}]
 readme = "README.md"
-license = { text = "MIT" }
+license = "MIT"
 requires-python = ">=3.8"
 
 keywords = ["json", "binary", "zstandard", "cli", "gui", "compression"]
 
 classifiers = [
   "Programming Language :: Python :: 3",
-  "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
   "Development Status :: 4 - Beta",
   "Environment :: Console",
@@ -47,5 +46,6 @@ tzBJC-gui = "tzBJC.gui:main"
 Homepage = "https://github.com/taggedzi/tzBJC"
 
 [tool.setuptools_scm]
+root = "."
 version_scheme = "post-release"
 local_scheme = "no-local-version"
