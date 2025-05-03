@@ -22,7 +22,7 @@ jobs:
 
     - name: Install build tools
       run: |
-        python -m pip install --upgrade pip build setuptools-scm twine
+        python -m pip install --upgrade pip build setuptools-scm twine wheel
 
     - name: Show detected version from setuptools-scm
       run: python -m setuptools_scm
