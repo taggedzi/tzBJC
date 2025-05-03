@@ -49,3 +49,20 @@ def cleanpy(c):   # pylint: disable=unused-argument
 def freeze(c):
     """Generate requirements.txt from current environment (useful for lockfiles)."""
     c.run("pip freeze > requirements.txt")
+
+@task
+def tag_release(c, version):
+    """
+    Tag a new release and push the tag to GitHub.
+    
+    Usage:
+      invoke tag-release --version=v0.2.0
+    """
+    if not version.startswith("v"):
+        print("❌ Version must start with 'v' (e.g., v0.2.0)")
+        return
+
+    print(f"🔖 Tagging release {version}...")
+    c.run(f"git tag {version}")
+    c.run(f"git push origin {version}")
+    print(f"✅ Tag {version} pushed to GitHub.")
