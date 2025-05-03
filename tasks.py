@@ -3,8 +3,14 @@
 import re
 import shutil
 import os
+import toml
+from pathlib import Path
 import subprocess
 from invoke import task
+
+PYPROJECT_PATH = Path("pyproject.toml")
+INIT_PATH = Path("src/tzBJC/__init__.py")
+
 
 @task
 def setup(c):
@@ -53,50 +59,85 @@ def freeze(c):
     c.run("pip freeze > requirements.txt")
 
 
-def git_output(command):
-    """Run a git command and return its output as string."""
-    result = subprocess.run(command, capture_output=True, text=True, shell=True)
-    return result.stdout.strip()
+def get_current_version() -> str:
+    pyproject = toml.load(PYPROJECT_PATH)
+    return pyproject["project"]["version"]
+
+def update_version(new_version: str):
+    pyproject = toml.load(PYPROJECT_PATH)
+    pyproject["project"]["version"] = new_version
+    PYPROJECT_PATH.write_text(toml.dumps(pyproject))
 
 @task
-def tag(c, version, branch="main"):
+def release(c, version, test=False):
     """
-    Tag the current commit with a semantic version and push it.
+    Automate a full release:
+    - Set version
+    - Commit version bump
+    - Tag commit
+    - Build dist
+    - Upload to PyPI (or TestPyPI)
 
-    Usage:
-        invoke tag --version=0.2.3
-    Optional:
-        --branch=main (default)
+    Usage: invoke release --version=0.2.5
+    Optional: --test (use TestPyPI instead of PyPI)
     """
-    # 1. Validate version format
+    # Validate version
     if not re.fullmatch(r"\d+\.\d+\.\d+", version):
-        print("❌ Invalid version format. Use semantic versioning like '0.2.3'.")
+        print("❌ Version must follow semantic versioning, e.g., 1.2.3")
         return
+
+    current_version = get_current_version()
+    if current_version == version:
+        print(f"🔁 Version already set to {version}, continuing...")
+    else:
+        print(f"🔧 Updating version: {current_version} → {version}")
+        update_version(version)
+        update_dunder_version(version)
+        c.run(f'git add pyproject.toml {INIT_PATH}')
+        c.run(f'git commit -m "Bump version to {version}"')
 
     tag_name = f"v{version}"
-
-    # 2. Ensure current branch is correct
-    current_branch = git_output("git rev-parse --abbrev-ref HEAD")
-    if current_branch != branch:
-        print(f"❌ You are on branch '{current_branch}', not '{branch}'.")
-        print("✅ Use --branch=your-branch to override.")
-        return
-
-    # 3. Check for uncommitted changes
-    if git_output("git status --porcelain"):
-        print("❌ Working directory is not clean. Please commit or stash changes.")
-        return
-
-    # 4. Check if tag already exists
-    existing_tags = git_output("git tag").splitlines()
+    existing_tags = subprocess.run(["git", "tag"], capture_output=True, text=True).stdout.splitlines()
     if tag_name in existing_tags:
         print(f"❌ Tag {tag_name} already exists.")
         return
 
-    # 5. Create and push the annotated tag
-    print(f"🏷️ Tagging as {tag_name}...")
+    print(f"🏷️ Tagging release {tag_name}")
     c.run(f'git tag -a {tag_name} -m "Release {tag_name}"')
-    c.run(f"git push origin {tag_name}")
+    c.run('git push')
+    c.run(f'git push origin {tag_name}')
 
-    print(f"✅ Tag {tag_name} created and pushed successfully.")
-    
+    print("📦 Building package...")
+    c.run("rm -rf dist build *.egg-info", warn=True)
+    c.run("python -m build --no-isolation")
+
+    print("🚀 Uploading to PyPI...")
+    if test:
+        c.run("twine upload --repository testpypi dist/*")
+    else:
+        c.run("twine upload dist/*")
+
+    print(f"✅ Release {version} complete.")
+
+
+def update_dunder_version(version: str):
+    """Update __version__ = 'x.y.z' in __init__.py."""
+    if not INIT_PATH.exists():
+        print(f"⚠️ {INIT_PATH} not found — skipping __version__ update.")
+        return
+
+    lines = INIT_PATH.read_text().splitlines()
+    new_lines = []
+    updated = False
+    for line in lines:
+        if line.strip().startswith("__version__"):
+            new_lines.append(f'__version__ = "{version}"')
+            updated = True
+        else:
+            new_lines.append(line)
+
+    if not updated:
+        new_lines.insert(0, f'__version__ = "{version}"')
+
+    INIT_PATH.write_text("\n".join(new_lines) + "\n")
+    print(f"🔢 Updated __version__ in {INIT_PATH}")

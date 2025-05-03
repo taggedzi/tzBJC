@@ -1,10 +1,10 @@
 [build-system]
-requires = ["setuptools>=61.0", "setuptools-scm", "wheel"]
+requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "tzBJC"
-dynamic = ["version"]
+version = "0.2.4"
 description = "Convert binary files to signed JSON and back, with zstd compression."
 authors = [{name = "Matthew Craig", email = "taggedzi.mpc@gmail.com"}]
 readme = "README.md"
@@ -36,6 +36,7 @@ dev = [
   "pytest==8.3.5",
   "pytest-cov==6.1.1",
   "pytest-qt==4.4.0",
+  "toml==0.10.2",
   "wheel==0.45.1"
 ]
 
@@ -45,10 +46,3 @@ tzBJC-gui = "tzBJC.gui:main"
 
 [project.urls]
 Homepage = "https://github.com/taggedzi/tzBJC"
-
-[tool.setuptools_scm]
-root = "."
-version_scheme = "release-branch-semver"
-local_scheme = "no-local-version"
-write_to = "src/tzBJC/_version.py"
-fallback_version = "0.0.0"

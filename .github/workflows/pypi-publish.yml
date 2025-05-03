@@ -13,7 +13,7 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v3
       with:
-        fetch-depth: 0  # Ensures setuptools-scm can see version tags
+        fetch-depth: 0 
 
     - name: Set up Python
       uses: actions/setup-python@v5
@@ -22,10 +22,7 @@ jobs:
 
     - name: Install build tools
       run: |
-        python -m pip install --upgrade pip build setuptools-scm twine wheel
-
-    - name: Show detected version from setuptools-scm
-      run: python -m setuptools_scm
+        python -m pip install --upgrade pip build twine wheel
 
     - name: Clean dist/
       run: rm -rf dist/*
