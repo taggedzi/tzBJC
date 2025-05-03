@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "tzBJC"
-version = "0.2.9"
+version = "0.2.10"
 description = "Convert binary files to signed JSON and back, with zstd compression."
 readme = "README.md"
 license = "MIT"
