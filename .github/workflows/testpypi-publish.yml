@@ -27,6 +27,9 @@ jobs:
     - name: Show detected version from setuptools-scm
       run: python -m setuptools_scm
 
+    - name: Clean dist/
+      run: rm -rf dist/*
+
     - name: Build package
       run: |
         python -m build
@@ -36,4 +39,4 @@ jobs:
         TWINE_USERNAME: __token__
         TWINE_PASSWORD: ${{ secrets.TEST_PYPI_API_TOKEN }}
       run: |
-        twine upload --repository-url https://test.pypi.org/legacy/ dist/*
+        twine upload --verbose --repository-url https://test.pypi.org/legacy/ dist/*
