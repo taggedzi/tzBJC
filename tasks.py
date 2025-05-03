@@ -95,7 +95,7 @@ def tag(c, version, branch="main"):
 
     # 5. Create and push the annotated tag
     print(f"🏷️ Tagging as {tag_name}...")
-    c.run(f'git tag -a {tag_name} -m "Release {tag_name}"', pty=True)
+    c.run(f'git tag -a {tag_name} -m "Release {tag_name}"')
     c.run(f"git push origin {tag_name}", pty=True)
 
     print(f"✅ Tag {tag_name} created and pushed successfully.")
