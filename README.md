@@ -1,64 +1,106 @@
-# TaggedZ's Binary JSON Converter
+# tzBJC - TaggedZ's Binary to JSON Converter
 
-Convert binary files to signed JSON and back.
+**tzBJC** is a utility for encoding and decoding binary files to signed JSON format with Zstandard compression. It provides both a command-line interface (CLI) and a graphical user interface (GUI) built with PySide6.
 
-## 📘 Command Line Interface (`tzbjc-cli`)
+---
 
-### Usage
+## ✨ Features
+
+- 🔐 Encodes binary files into signed JSON format
+- 🧩 Uses Zstandard compression with Base64 URL-safe encoding
+- 📦 CLI and GUI support
+- ✅ Stream-based processing for large files
+- 📋 Clipboard-friendly JSON output (via GUI)
+- 🧪 Thorough test coverage with Pytest and Pytest-Qt
+
+---
+
+## 📦 Installation
 
 ```bash
-tzbjc-cli <command> [options]
+pip install tzBJC
+```
+
+Or from source:
+
+```bash
+git clone https://github.com/taggedzi/tzBJC.git
+cd tzBJC
+pip install .
 ```
 
 ---
 
-### Commands
+## 🖥️ Command Line Usage
 
-#### 🔹 `encode` — Compress a binary file into JSON
+See CLI help:
 
 ```bash
-tzbjc-cli encode --input <file> [--output <json-file>] [--force]
+tzBJC-cli --help
 ```
 
-**Options:**
-
-* `--input, -i` (required): Path to the input binary file
-* `--output, -o`: Path to output JSON file (default: stdout)
-* `--force, -f`: Overwrite output file if it already exists
-
-**Example:**
+### Encode example:
 
 ```bash
-tzbjc-cli encode -i data.bin -o encoded.json
-tzbjc-cli encode -i data.bin > encoded.json
+tzBJC-cli encode -i input.bin -o output.json
 ```
 
----
-
-#### 🔹 `decode` — Extract a binary file from a JSON archive
+### Decode example:
 
 ```bash
-tzbjc-cli decode --input <json-file> [--output <file>] [--force]
-```
-
-**Options:**
-
-* `--input, -i` (required): Path to the input JSON file
-* `--output, -o`: Output binary file (default: uses embedded filename from JSON)
-* `--force, -f`: Overwrite output file if it already exists
-
-**Example:**
-
-```bash
-tzbjc-cli decode -i encoded.json
-tzbjc-cli decode -i encoded.json -o new_data.bin --force
+tzBJC-cli decode -i output.json -o restored.bin
 ```
 
 ---
 
-### Exit Codes
+## 🪟 GUI Usage
 
-| Code | Meaning                   |
-| ---- | ------------------------- |
-| 0    | Success                   |
-| 1    | Error (e.g., file exists) |
+```bash
+tzBJC-gui
+```
+
+Drag-and-drop or select binary or JSON files to convert between formats. The GUI supports:
+
+- File output
+- Clipboard-friendly output
+- Overwrite protection (with `force` option)
+
+---
+
+## 🛠 Developer Instructions
+
+Set up a local development environment:
+
+```bash
+git clone https://github.com/taggedzi/tzBJC.git
+cd tzBJC
+python -m venv .venv
+source .venv/bin/activate  # on Windows: .venv\Scripts\activate
+pip install -e .[dev]
+```
+
+Run tests with coverage:
+
+```bash
+pytest --cov=src
+```
+
+Build the package:
+
+```bash
+python -m build
+```
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 🌐 Links
+
+- 📦 [PyPI Project Page](https://pypi.org/project/tzBJC/)
+- 🧪 [TestPyPI Package](https://test.pypi.org/project/tzBJC/)
+- 🐙 [GitHub Repository](https://github.com/taggedzi/tzBJC)
