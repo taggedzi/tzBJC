@@ -66,3 +66,19 @@ def tag_release(c, version):
     c.run(f"git tag {version}")
     c.run(f"git push origin {version}")
     print(f"✅ Tag {version} pushed to GitHub.")
+    
+@task
+def push_all(c):
+    """
+    Push latest commits and all tags to origin.
+    
+    Usage:
+      invoke push-all
+    """
+    print("📦 Pushing commits to origin...")
+    c.run("git push")
+
+    print("🏷️  Pushing tags to origin...")
+    c.run("git push --tags")
+
+    print("✅ Push complete.")
