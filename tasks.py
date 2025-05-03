@@ -1,7 +1,9 @@
 # Path: tasks.py
 """Tasks for invoking tasks using Invoke."""
+import re
 import shutil
 import os
+import subprocess
 from invoke import task
 
 @task
@@ -50,35 +52,51 @@ def freeze(c):
     """Generate requirements.txt from current environment (useful for lockfiles)."""
     c.run("pip freeze > requirements.txt")
 
+
+def git_output(command):
+    """Run a git command and return its output as string."""
+    result = subprocess.run(command, capture_output=True, text=True, shell=True)
+    return result.stdout.strip()
+
 @task
-def tag_release(c, version):
+def tag(c, version, branch="main"):
     """
-    Tag a new release and push the tag to GitHub.
-    
+    Tag the current commit with a semantic version and push it.
+
     Usage:
-      invoke tag-release --version=v0.2.0
+        invoke tag --version=0.2.3
+    Optional:
+        --branch=main (default)
     """
-    if not version.startswith("v"):
-        print("❌ Version must start with 'v' (e.g., v0.2.0)")
+    # 1. Validate version format
+    if not re.fullmatch(r"\d+\.\d+\.\d+", version):
+        print("❌ Invalid version format. Use semantic versioning like '0.2.3'.")
         return
 
-    print(f"🔖 Tagging release {version}...")
-    c.run(f"git tag {version}")
-    c.run(f"git push origin {version}")
-    print(f"✅ Tag {version} pushed to GitHub.")
-    
-@task
-def push_all(c):
-    """
-    Push latest commits and all tags to origin.
-    
-    Usage:
-      invoke push-all
-    """
-    print("📦 Pushing commits to origin...")
-    c.run("git push")
+    tag_name = f"v{version}"
 
-    print("🏷️  Pushing tags to origin...")
-    c.run("git push --tags")
+    # 2. Ensure current branch is correct
+    current_branch = git_output("git rev-parse --abbrev-ref HEAD")
+    if current_branch != branch:
+        print(f"❌ You are on branch '{current_branch}', not '{branch}'.")
+        print("✅ Use --branch=your-branch to override.")
+        return
 
-    print("✅ Push complete.")
+    # 3. Check for uncommitted changes
+    if git_output("git status --porcelain"):
+        print("❌ Working directory is not clean. Please commit or stash changes.")
+        return
+
+    # 4. Check if tag already exists
+    existing_tags = git_output("git tag").splitlines()
+    if tag_name in existing_tags:
+        print(f"❌ Tag {tag_name} already exists.")
+        return
+
+    # 5. Create and push the annotated tag
+    print(f"🏷️ Tagging as {tag_name}...")
+    c.run(f'git tag -a {tag_name} -m "Release {tag_name}"', pty=True)
+    c.run(f"git push origin {tag_name}", pty=True)
+
+    print(f"✅ Tag {tag_name} created and pushed successfully.")
+    

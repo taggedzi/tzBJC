@@ -48,7 +48,7 @@ Homepage = "https://github.com/taggedzi/tzBJC"
 
 [tool.setuptools_scm]
 root = "."
-version_scheme = "post-release"
+version_scheme = "release-branch-semver"
 local_scheme = "no-local-version"
 write_to = "src/tzBJC/_version.py"
 fallback_version = "0.0.0"
