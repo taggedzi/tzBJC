@@ -25,20 +25,20 @@
         v
 [SHA-256 Digest (hex string)]
         |
-        |  (2. Compute SHA-256 of compressed data)
+        |  (2. Compute SHA-256)
         v
 [Binary Content]
         |
         |  (3. Compress using Zstandard)
         v
-[Zstandard Compressed Binary Content]
+[Compressed Binary Content]
         |
         |  (4. Encode with base64-url-safe)
         v
       [JSON File | stdout | StringIO | Clipboard-friendly JSON format (GUI)]
         {
           "filename": "example.bin",
-          "data": "<zstd compressed base64 string>",
+          "data": "<bas64-url-safe string of compressed data>",
           "sha256": "<hash of original data>"
         }
 
@@ -48,9 +48,9 @@
         |
         |  (5. Extract compressed base64 + hash)
         v
-[Base64-urlsafe String]
+[Base64-url-safe String]
         |
-        |  (6. Decode base64-urlsafe)
+        |  (6. Decode base64-url-safe)
         v
 [Compressed Data]
         |
@@ -58,14 +58,13 @@
         v
        [Valid?]
         |
-        |  (7. Verify checksum)
+        |  (8. Verify checksum)
         v
 [Original Binary Data]
         |
-        |  (8. Write to output path)
+        |  (9. Write to output path)
         v
 [Restored Binary File]
-
 ```
 
 ## 📦 Installation
