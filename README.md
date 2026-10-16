@@ -123,6 +123,8 @@ Drag-and-drop or select binary or JSON files to convert between formats. The GUI
 
 Set up a local development environment:
 
+Development and testing require Python 3.10 or newer (required by pytest 9).
+
 ```bash
 git clone https://github.com/taggedzi/tzBJC.git
 cd tzBJC
