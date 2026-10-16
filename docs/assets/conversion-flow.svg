@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1040" height="570" viewBox="0 0 1040 570" role="img" aria-labelledby="title desc">
+  <title id="title">From binary to JSON, and back</title>
+  <desc id="desc">Encode by hashing the original bytes, compressing with Zstandard, and encoding with URL-safe Base64. Store the filename, checksum, and data in JSON. Decode Base64, decompress, verify the SHA-256 checksum, then write the restored file.</desc>
+  <defs>
+    <marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 Z" fill="#64748b"/></marker>
+    <style>
+      text { font-family: 'Segoe UI', Arial, sans-serif; }
+      .heading { font-size: 28px; font-weight: 700; fill: #0f172a; }
+      .body { font-size: 15px; fill: #475569; }
+      .label { font-size: 13px; font-weight: 700; letter-spacing: 2px; }
+      .node { font-size: 18px; font-weight: 600; fill: #0f172a; }
+      .detail { font-size: 14px; fill: #475569; }
+      .link { fill: none; stroke: #64748b; stroke-width: 2; marker-end: url(#arrow); }
+      .mono { font-family: Consolas, monospace; font-size: 14px; fill: #334155; }
+    </style>
+  </defs>
+  <rect x="1" y="1" width="1038" height="568" rx="20" fill="#f8fafc" stroke="#cbd5e1"/>
+  <text x="36" y="49" class="heading" font-size="28" font-family="Segoe UI, Arial, sans-serif">From binary to JSON, and back.</text>
+  <text x="36" y="78" class="body" font-size="15" font-family="Segoe UI, Arial, sans-serif">One file. A text-friendly payload. Verified restoration.</text>
+
+  <text x="36" y="120" class="label" font-size="13" font-family="Segoe UI, Arial, sans-serif" fill="#0369a1">01 / ENCODE</text>
+  <rect x="36" y="140" width="206" height="90" rx="12" fill="#ffffff" stroke="#cbd5e1"/>
+  <text x="139" y="178" class="node" font-size="18" font-family="Segoe UI, Arial, sans-serif" text-anchor="middle">Original file</text>
+  <text x="139" y="203" class="detail" font-size="14" font-family="Segoe UI, Arial, sans-serif" text-anchor="middle">Read the binary bytes</text>
+  <path d="M249 185 H280" class="link"/>
+  <rect x="290" y="140" width="206" height="90" rx="12" fill="#e0f2fe" stroke="#7dd3fc"/>
+  <text x="393" y="178" class="node" font-size="18" font-family="Segoe UI, Arial, sans-serif" text-anchor="middle">Zstandard</text>
+  <text x="393" y="203" class="detail" font-size="14" font-family="Segoe UI, Arial, sans-serif" text-anchor="middle">Compress the content</text>
+  <path d="M503 185 H534" class="link"/>
+  <rect x="544" y="140" width="206" height="90" rx="12" fill="#e0f2fe" stroke="#7dd3fc"/>
+  <text x="647" y="178" class="node" font-size="18" font-family="Segoe UI, Arial, sans-serif" text-anchor="middle">URL-safe Base64</text>
+  <text x="647" y="203" class="detail" font-size="14" font-family="Segoe UI, Arial, sans-serif" text-anchor="middle">Represent bytes as text</text>
+  <path d="M757 185 H788" class="link"/>
+  <rect x="798" y="140" width="206" height="90" rx="12" fill="#dbeafe" stroke="#93c5fd"/>
+  <text x="901" y="178" class="node" font-size="18" font-family="Segoe UI, Arial, sans-serif" text-anchor="middle">JSON document</text>
+  <text x="901" y="203" class="detail" font-size="14" font-family="Segoe UI, Arial, sans-serif" text-anchor="middle">Ready to store or copy</text>
+
+  <rect x="36" y="249" width="968" height="54" rx="10" fill="#eef2ff" stroke="#c7d2fe"/>
+  <text x="56" y="272" class="detail" font-size="14" font-family="Segoe UI, Arial, sans-serif">SHA-256 is calculated from the original bytes and stored with the payload.</text>
+  <text x="56" y="291" class="mono" font-size="14" font-family="Segoe UI, Arial, sans-serif">JSON fields: filename · checksum · data</text>
+
+  <text x="36" y="342" class="label" font-size="13" font-family="Segoe UI, Arial, sans-serif" fill="#047857">02 / DECODE</text>
+  <rect x="36" y="362" width="206" height="90" rx="12" fill="#dbeafe" stroke="#93c5fd"/>
+  <text x="139" y="400" class="node" font-size="18" font-family="Segoe UI, Arial, sans-serif" text-anchor="middle">JSON document</text>
+  <text x="139" y="425" class="detail" font-size="14" font-family="Segoe UI, Arial, sans-serif" text-anchor="middle">Read payload + checksum</text>
+  <path d="M249 407 H280" class="link"/>
+  <rect x="290" y="362" width="206" height="90" rx="12" fill="#ecfdf5" stroke="#6ee7b7"/>
+  <text x="393" y="400" class="node" font-size="18" font-family="Segoe UI, Arial, sans-serif" text-anchor="middle">Decode + expand</text>
+  <text x="393" y="425" class="detail" font-size="14" font-family="Segoe UI, Arial, sans-serif" text-anchor="middle">Base64 → Zstandard</text>
+  <path d="M503 407 H534" class="link"/>
+  <rect x="544" y="362" width="206" height="90" rx="12" fill="#ecfdf5" stroke="#6ee7b7"/>
+  <text x="647" y="400" class="node" font-size="18" font-family="Segoe UI, Arial, sans-serif" text-anchor="middle">Verify SHA-256</text>
+  <text x="647" y="425" class="detail" font-size="14" font-family="Segoe UI, Arial, sans-serif" text-anchor="middle">Must match the checksum</text>
+  <path d="M757 407 H788" class="link"/>
+  <rect x="798" y="362" width="206" height="90" rx="12" fill="#d1fae5" stroke="#34d399"/>
+  <text x="901" y="400" class="node" font-size="18" font-family="Segoe UI, Arial, sans-serif" text-anchor="middle">Restored file</text>
+  <text x="901" y="425" class="detail" font-size="14" font-family="Segoe UI, Arial, sans-serif" text-anchor="middle">Write verified bytes</text>
+
+  <path d="M36 483 H1004" stroke="#cbd5e1"/>
+  <text x="36" y="514" class="body" font-size="15" font-family="Segoe UI, Arial, sans-serif">Checksum mismatch? Decoding stops before writing the output file.</text>
+  <text x="36" y="539" class="detail" font-size="14" font-family="Segoe UI, Arial, sans-serif">Checksums detect corruption; they do not provide encryption or prove who created the file.</text>
+</svg>

@@ -1,0 +1,2 @@
+include README.md CLI.md CHANGELOG.md RELEASING.md
+recursive-include docs/assets *.svg

@@ -1,13 +1,13 @@
 # TaggedZ's Binary JSON Converter - CLI Reference
 
-Convert binary files to signed JSON and back.
+Convert binary files to Zstandard-compressed JSON with SHA-256 checksums and back.
 
-## 📘 Command Line Interface (`tzbjc-cli`)
+## 📘 Command Line Interface (`tzBJC-cli`)
 
 ### Usage
 
 ```bash
-tzbjc-cli <command> [options]
+tzBJC-cli <command> [options]
 ```
 
 ---
@@ -17,7 +17,7 @@ tzbjc-cli <command> [options]
 #### 🔹 `encode` — Compress a binary file into JSON
 
 ```bash
-tzbjc-cli encode --input <file> [--output <json-file>] [--force]
+tzBJC-cli encode --input <file> [--output <json-file>] [--force]
 ```
 
 **Options:**
@@ -29,8 +29,8 @@ tzbjc-cli encode --input <file> [--output <json-file>] [--force]
 **Example:**
 
 ```bash
-tzbjc-cli encode -i data.bin -o encoded.json
-tzbjc-cli encode -i data.bin > encoded.json
+tzBJC-cli encode -i data.bin -o encoded.json
+tzBJC-cli encode -i data.bin > encoded.json
 ```
 
 ---
@@ -38,7 +38,7 @@ tzbjc-cli encode -i data.bin > encoded.json
 #### 🔹 `decode` — Extract a binary file from a JSON archive
 
 ```bash
-tzbjc-cli decode --input <json-file> [--output <file>] [--force]
+tzBJC-cli decode --input <json-file> [--output <file>] [--force]
 ```
 
 **Options:**
@@ -50,8 +50,8 @@ tzbjc-cli decode --input <json-file> [--output <file>] [--force]
 **Example:**
 
 ```bash
-tzbjc-cli decode -i encoded.json
-tzbjc-cli decode -i encoded.json -o new_data.bin --force
+tzBJC-cli decode -i encoded.json
+tzBJC-cli decode -i encoded.json -o new_data.bin --force
 ```
 
 ---
@@ -62,3 +62,4 @@ tzbjc-cli decode -i encoded.json -o new_data.bin --force
 | ---- | ------------------------- |
 | 0    | Success                   |
 | 1    | Error (e.g., file exists) |
+| 2    | Invalid command-line arguments |

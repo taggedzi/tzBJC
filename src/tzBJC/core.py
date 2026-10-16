@@ -1,5 +1,5 @@
 # Path: src/tzBJC/core.py
-"""Library for encoding/decoding binary files to/from signed JSON files."""
+"""Encode and decode binary files as compressed JSON with SHA-256 checksums."""
 # pylint: disable=line-too-long
 import io
 from io import TextIOBase
@@ -39,9 +39,16 @@ def encode_to_json_stream(input_path: str, output: TextIOBase, chunk_size: int =
     # Second pass: compress + encode
     cctx = zstd.ZstdCompressor(level=22)
     with open(input_path, "rb") as f, cctx.stream_reader(f) as compressor:
+        pending = b""
         while chunk := compressor.read(chunk_size):
-            encoded_chunk = base64.urlsafe_b64encode(chunk).decode('ascii')
-            output.write(encoded_chunk)
+            # Only encode complete groups of three bytes. Padding in the middle
+            # of a Base64 string causes decoders to stop before the file ends.
+            pending += chunk
+            complete_length = len(pending) - len(pending) % 3
+            output.write(base64.urlsafe_b64encode(pending[:complete_length]).decode('ascii'))
+            pending = pending[complete_length:]
+        if pending:
+            output.write(base64.urlsafe_b64encode(pending).decode('ascii'))
 
     output.write('"\n}\n')
 
