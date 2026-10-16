@@ -1,0 +1,2 @@
+# Keep text files consistent in the repository and working tree.
+* text=auto eol=lf
