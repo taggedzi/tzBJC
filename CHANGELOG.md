@@ -8,6 +8,8 @@
   validation, and explicit `--publish` steps. Use GitHub Actions for uploads,
   and separate TestPyPI tags from production tags.
 - Require tests and package metadata checks in both publication workflows.
+- Pin GitHub Actions to full commit SHAs and support retrying an existing
+  TestPyPI tag using the corrected workflow from `main`.
 
 - Keep Base64 padding at the end of the encoded payload. Previously, files
   spanning compression chunks could fail to decode or fail checksum validation.

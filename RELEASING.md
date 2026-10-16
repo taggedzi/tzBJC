@@ -78,6 +78,9 @@ Configure the appropriate secret under the repository's Actions secrets before
 publishing. Merge these workflow changes before using the new process; the
 workflows in the tagged commit determine where a tag is published.
 
+The repository must allow GitHub-owned actions, with full-SHA pinning required.
+All `uses:` references in the checked-in workflows are pinned to exact commits.
+
 ### Recovering from failures
 
 If tests, build, or metadata checks fail locally, fix the issue and rerun. No tag
@@ -93,6 +96,17 @@ If Actions fails before upload, fix an external issue such as a missing secret
 and rerun the failed job. If a package version was already uploaded, do not move
 its tag or overwrite the published version; prepare a new patch release for code
 changes. PyPI does not allow replacing an existing distribution.
+
+If a TestPyPI tag points to an older, broken workflow, rerunning that run still
+uses the old workflow. After fixing and pushing the workflow on `main`, use
+the manual retry to build the existing tag with the corrected workflow:
+
+```sh
+gh workflow run testpypi-publish.yml --ref main -f release_tag=testpypi/v0.2.18
+```
+
+This publishes to TestPyPI only and does not move or replace the tag. The manual
+retry is intended for failures before any distribution was uploaded.
 
 ## Verify publication
 
